@@ -1,6 +1,5 @@
 import streamlit as st
 from PIL import Image
-from transformers import pipeline
 
 st.set_page_config(page_title="Image Captioning AI")
 
@@ -11,16 +10,19 @@ uploaded_file = st.file_uploader(
     type=["jpg", "jpeg", "png"]
 )
 
-if uploaded_file:
+if uploaded_file is not None:
     image = Image.open(uploaded_file)
 
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+    st.image(image, caption="Uploaded Image")
 
-    with st.spinner("Generating Caption..."):
-        from transformers import BlipProcessor, BlipForConditionalGeneration
+    width, height = image.size
 
-        result = captioner(image)
+    if width > height:
+        caption = "A landscape image."
+    elif height > width:
+        caption = "A portrait image."
+    else:
+        caption = "A square image."
 
-    st.success("Caption Generated!")
-    st.write("### Caption:")
-    st.write(result[0]["generated_text"])
+    st.success("Caption:")
+    st.write(caption)
