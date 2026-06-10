@@ -17,10 +17,7 @@ if uploaded_file:
     st.image(image, caption="Uploaded Image", use_container_width=True)
 
     with st.spinner("Generating Caption..."):
-        captioner = pipeline(
-            "image-to-text",
-            model="Salesforce/blip-image-captioning-base"
-        )
+        from transformers import BlipProcessor, BlipForConditionalGeneration
 
         result = captioner(image)
 
