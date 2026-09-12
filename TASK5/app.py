@@ -1,11 +1,19 @@
-
 import streamlit as st
 import cv2
 import numpy as np
 from PIL import Image
 
-st.title("😊 Face Detection App")
+# Page configuration
+st.set_page_config(
+    page_title="Face Detection App",
+    page_icon="😊"
+)
 
+# Title
+st.title("😊 Face Detection App")
+st.write("Upload an image to detect faces.")
+
+# Upload image
 uploaded_file = st.file_uploader(
     "Upload an Image",
     type=["jpg", "jpeg", "png"]
@@ -13,39 +21,57 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
 
-    # Open image
+    # Open uploaded image
     image = Image.open(uploaded_file).convert("RGB")
 
-    # Convert image to numpy array
+    # Convert PIL image to NumPy array
     img_array = np.array(image)
 
-    # Convert RGB to Gray
-    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-
-    # Load face detection model
-    cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    face_cascade = cv2.CascadeClassifier(cascade_path)
-
-    # Detect faces
-    faces = face_cascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5
+    # Convert RGB image to grayscale
+    gray = cv2.cvtColor(
+        img_array,
+        cv2.COLOR_RGB2GRAY
     )
 
-    # Draw rectangles
-    for (x, y, w, h) in faces:
-        cv2.rectangle(
-            img_array,
-            (x, y),
-            (x + w, y + h),
-            (0, 255, 0),
-            3
+    # Load OpenCV Haar Cascade face detector
+    face_cascade = cv2.CascadeClassifier(
+        cv2.data.haarcascades +
+        "haarcascade_frontalface_default.xml"
+    )
+
+    # Check whether cascade loaded correctly
+    if face_cascade.empty():
+        st.error("Face detection model could not be loaded.")
+    else:
+
+        # Detect faces
+        faces = face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30)
         )
 
-    # Display result
-    st.image(
-        img_array,
-        caption=f"Faces Detected: {len(faces)}",
-        use_container_width=True
-    )
+        # Create copy for output
+        output_image = img_array.copy()
+
+        # Draw rectangle around detected faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(
+                output_image,
+                (x, y),
+                (x + w, y + h),
+                (0, 255, 0),
+                3
+            )
+
+        # Display result
+        st.image(
+            output_image,
+            caption=f"Faces Detected: {len(faces)}",
+            use_container_width=True
+        )
+
+        st.success(
+            f"Successfully detected {len(faces)} face(s)!"
+        )
