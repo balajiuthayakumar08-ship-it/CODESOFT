@@ -35,8 +35,9 @@ if uploaded_file is not None:
 
     # Load OpenCV Haar Cascade face detector
     face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades +
-        "haarcascade_frontalface_default.xml"
+    cv2.data.haarcascades +
+    "haarcascade_frontalface_default.xml"
+)
     )
 
     # Check whether cascade loaded correctly
