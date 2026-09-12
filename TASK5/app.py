@@ -3,40 +3,44 @@ import cv2
 import numpy as np
 from PIL import Image
 
-# Load face detection model
-face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
+st.set_page_config(page_title="Face Detection App")
 
 st.title("😊 Face Detection App")
+st.write("Upload an image to detect faces.")
 
 uploaded_file = st.file_uploader(
-    "Upload an image",
+    "Upload an Image",
     type=["jpg", "jpeg", "png"]
 )
 
 if uploaded_file is not None:
 
-    image = Image.open(uploaded_file)
-    img_array = np.array(image)
+    image = Image.open(uploaded_file).convert("RGB")
+    image_array = np.array(image)
 
-    # Convert RGB to BGR
-    img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+    gray = cv2.cvtColor(
+        image_array,
+        cv2.COLOR_RGB2GRAY
+    )
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    cascade_file = (
+        cv2.data.haarcascades +
+        "haarcascade_frontalface_default.xml"
+    )
 
-    # Detect faces
+    face_cascade = cv2.CascadeClassifier(cascade_file)
+
     faces = face_cascade.detectMultiScale(
         gray,
         scaleFactor=1.1,
         minNeighbors=5
     )
 
-    # Draw rectangle around faces
+    result = image_array.copy()
+
     for (x, y, w, h) in faces:
         cv2.rectangle(
-            img_array,
+            result,
             (x, y),
             (x + w, y + h),
             (0, 255, 0),
@@ -44,7 +48,6 @@ if uploaded_file is not None:
         )
 
     st.image(
-        img_array,
-        caption=f"Detected Faces: {len(faces)}",
-        use_container_width=True
+        result,
+        caption=f"Faces Detected: {len(faces)}"
     )
